@@ -1,0 +1,26 @@
+# Python
+__pycache__/
+*.pyc
+
+# Virtual environments
+venv/
+.venv/
+
+# Environment variables (IMPORTANT)
+.env
+*.env
+backend/.env
+
+# Database files
+*.db
+
+# Node
+node_modules/
+dist/
+
+# Editor
+.vscode/
+
+# OS
+.DS_Store
+Thumbs.db
