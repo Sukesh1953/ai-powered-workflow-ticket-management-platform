@@ -323,7 +323,7 @@ Planned features:
 
 ## Ticket Details
 
-![Ticket Details](assets/ticket-details.png)
+![Ticket Details](assets/ticket_details.png)
 
 
 ## Analytics
