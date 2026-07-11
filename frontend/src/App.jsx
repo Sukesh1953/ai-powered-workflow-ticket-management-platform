@@ -1,50 +1,54 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import CreateTicket from "./pages/CreateTicket";
+
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Dashboard from "./pages/Dashboard";
+import CreateTicket from "./pages/CreateTicket";
+import TicketList from "./pages/TicketList";
 
 import ProtectedRoute from "./components/ProtectedRoute";
 
 export default function App() {
+  return (
+    <BrowserRouter>
 
-    return (
+      <Routes>
 
-        <BrowserRouter>
+        <Route path="/" element={<Login />} />
 
-            <Routes>
+        <Route path="/login" element={<Login />} />
 
-                <Route path="/" element={<Login />} />
+        <Route path="/register" element={<Register />} />
 
-                <Route path="/login" element={<Login />} />
+        <Route
+          path="/dashboard"
+          element={
+            <ProtectedRoute>
+              <Dashboard />
+            </ProtectedRoute>
+          }
+        />
 
-                <Route path="/register" element={<Register />} />
+        <Route
+          path="/create-ticket"
+          element={
+            <ProtectedRoute>
+              <CreateTicket />
+            </ProtectedRoute>
+          }
+        />
 
-                <Route
-                path="/create-ticket"
-                element={
-                <ProtectedRoute>
-                    <CreateTicket />
-                    </ProtectedRoute>
-                }
-                />
+        <Route
+          path="/tickets"
+          element={
+            <ProtectedRoute>
+              <TicketList />
+            </ProtectedRoute>
+          }
+        />
 
-                <Route
+      </Routes>
 
-                    path="/dashboard"
-
-                    element={
-                        <ProtectedRoute>
-                            <Dashboard />
-                        </ProtectedRoute>
-                    }
-
-                />
-
-            </Routes>
-
-        </BrowserRouter>
-
-    );
-
+    </BrowserRouter>
+  );
 }

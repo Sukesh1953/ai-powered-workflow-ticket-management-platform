@@ -1,7 +1,10 @@
+import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import api from "../services/api";
 
 export default function CreateTicket() {
+    
+  const navigate = useNavigate();
 
   const [text, setText] = useState("");
   const [loading, setLoading] = useState(false);
@@ -21,6 +24,8 @@ export default function CreateTicket() {
       const res = await api.post("/tickets/create", {
         text: text
       });
+      alert("Ticket created successfully!");
+      navigate("/dashboard");
 
       setTicket(res.data);
 
