@@ -224,30 +224,38 @@ def create_ticket(
     request: SummarizeRequest,
     db: Session = Depends(get_db)
 ):
+    try:
+        print("========== REQUEST ==========")
+        print(request.text)
 
-    ai_result = summarize_text(request.text)
+        ai_result = summarize_text(request.text)
 
-    ticket = Ticket(
-    summary=ai_result["summary"],
-    priority=ai_result["priority"],
-    category=ai_result["category"],
-    department=ai_result["department"],
-    assigned_to=ai_result["department"]
-    )
+        print("========== AI RESULT ==========")
+        print(ai_result)
 
-    db.add(ticket)
-    db.commit()
-    db.refresh(ticket)
+        ticket = Ticket(
+            summary=ai_result["summary"],
+            priority=ai_result["priority"],
+            category=ai_result["category"],
+            department=ai_result["department"],
+            resolution=ai_result["resolution"],
+            assigned_to=ai_result["department"],
+            status="Open"
+        )
 
-    return {
-    "ticket_id": ticket.id,
-    "summary": ticket.summary,
-    "priority": ticket.priority,
-    "category": ticket.category,
-    "department": ticket.department,
-    "assigned_to": ticket.assigned_to,
-    "status": ticket.status
-}
+        db.add(ticket)
+        db.commit()
+        db.refresh(ticket)
+
+        return ticket
+
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+
+        return {
+            "error": str(e)
+        }
 
 @app.get("/tickets")
 def get_tickets(

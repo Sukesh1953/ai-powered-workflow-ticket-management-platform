@@ -1,7 +1,13 @@
-import requests
+import os
 import json
 import re
 
+from groq import Groq
+from dotenv import load_dotenv
+
+load_dotenv()
+
+client = Groq(api_key=os.getenv("GROQ_API_KEY"))
 
 def summarize_text(text):
 
@@ -9,76 +15,57 @@ def summarize_text(text):
 Analyze the ticket and return ONLY valid JSON.
 
 {{
-    "summary": "",
-    "priority": "",
-    "category": "",
-    "department": "",
-    "resolution": ""
+  "summary":"",
+  "priority":"",
+  "category":"",
+  "department":"",
+  "resolution":""
 }}
 
 Rules:
 - priority must be Critical, High, Medium, or Low
 - category should be short
 - department should be short
-- resolution should be a short troubleshooting suggestion
+- resolution should be short
 
 Ticket:
 {text}
 """
 
-    response = requests.post(
-        "http://localhost:11434/api/generate",
-        json={
-            "model": "phi3",
-            "prompt": prompt,
-            "stream": False
-        }
+    response = client.chat.completions.create(
+        model="llama-3.3-70b-versatile",
+        messages=[
+            {
+                "role": "user",
+                "content": prompt
+            }
+        ],
+        temperature=0.2
     )
 
-    result = response.json()
-
-    ai_output = result["response"].strip()
+    ai_output = response.choices[0].message.content
 
     try:
-
-        # Extract JSON even if model adds extra text
         match = re.search(r"\{.*\}", ai_output, re.DOTALL)
 
         if match:
-
-            parsed_json = json.loads(match.group())
+            data = json.loads(match.group())
 
             return {
-                "summary": parsed_json.get(
-                    "summary",
-                    "No summary"
-                ),
-                "priority": parsed_json.get(
-                    "priority",
-                    "Medium"
-                ),
-                "category": parsed_json.get(
-                    "category",
-                    "General"
-                ),
-                "department": parsed_json.get(
-                    "department",
-                    "Support Team"
-                ),
-                "resolution": parsed_json.get(
-                    "resolution",
-                    "No resolution suggested"
-                )
+                "summary": data.get("summary", ""),
+                "priority": data.get("priority", "Medium"),
+                "category": data.get("category", "General"),
+                "department": data.get("department", "Support"),
+                "resolution": data.get("resolution", "")
             }
 
-    except Exception as e:
-
-        print("JSON Parse Error:", e)
+    except Exception:
+        pass
 
     return {
         "summary": ai_output[:200],
         "priority": "Medium",
         "category": "General",
-        "department": "Support Team",
+        "department": "Support",
         "resolution": "Manual investigation required"
     }

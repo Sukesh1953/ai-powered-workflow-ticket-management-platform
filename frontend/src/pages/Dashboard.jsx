@@ -1,8 +1,10 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import api from "../services/api";
 import TicketChart from "../components/TicketChart";
 
 function Dashboard() {
+    
 
     const [stats, setStats] = useState({
         total_tickets: 0,
@@ -21,6 +23,8 @@ function Dashboard() {
 
     const [priorityFilter, setPriorityFilter] =
         useState("All");
+
+    const navigate = useNavigate();
 
     const loadData = async () => {
 
@@ -70,17 +74,32 @@ function Dashboard() {
         <div className="min-h-screen bg-gray-100 p-8">
         
 
-            <div className="mb-8">
-
-    <h1 className="text-4xl font-bold">
-        AI Workflow & Ticket Platform
-    </h1>
-
-    <p className="text-gray-500 mt-2">
-        Intelligent ticket management powered by AI
-    </p>
-
-</div>
+           <div className="flex justify-between items-center mb-8">
+            <div>
+                <h1 className="text-4xl font-bold">
+                    AI Workflow & Ticket Platform
+                </h1>
+                <p className="text-gray-500 mt-2">
+                    Intelligent ticket management powered by AI
+                </p>
+            </div>
+        <button
+        onClick={() => navigate("/create-ticket")}
+        className="
+            bg-blue-600
+            hover:bg-blue-700
+            text-white
+            px-6
+            py-3
+            rounded-xl
+            font-semibold
+            shadow-lg
+            transition
+            "
+            >
+            + Create Ticket
+        </button>
+        </div>
 
             <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
 

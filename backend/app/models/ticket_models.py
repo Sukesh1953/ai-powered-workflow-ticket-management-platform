@@ -11,7 +11,7 @@ class Ticket(Base):
     priority = Column(String)
     category = Column(String)
     department = Column(String)
-
+    resolution = Column(String)
     assigned_to = Column(String)
 
     status = Column(
