@@ -25,6 +25,7 @@ from app.models.ticket_models import Ticket
 from app.models.schemas import TicketUpdate
 
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi import HTTPException
 
 app = FastAPI()
 app.add_middleware(
@@ -72,6 +73,7 @@ def register_user(user: UserCreate, db: Session = Depends(get_db)):
         "user_id": new_user.id
     }
 
+
 @app.post("/login")
 def login_user(user: UserLogin, db: Session = Depends(get_db)):
 
@@ -80,13 +82,10 @@ def login_user(user: UserLogin, db: Session = Depends(get_db)):
     ).first()
 
     if not db_user:
-        return {"error": "User not found"}
+        raise HTTPException(status_code=404, detail="User not found")
 
-    if not verify_password(
-        user.password,
-        db_user.password
-    ):
-        return {"error": "Invalid password"}
+    if not verify_password(user.password, db_user.password):
+        raise HTTPException(status_code=401, detail="Invalid password")
 
     access_token = create_access_token(
         data={"sub": db_user.email}

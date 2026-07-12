@@ -10,19 +10,17 @@ export default function Login() {
     password: "",
   });
 
-  const [loading, setLoading] = useState(false);
-
   const login = async () => {
     try {
       setLoading(true);
-
       const res = await api.post("/login", form);
-
       localStorage.setItem("token", res.data.access_token);
-
       navigate("/dashboard");
     } catch (err) {
-      alert("Invalid email or password");
+      console.log(err);
+      console.log(err.response);
+      console.log(err.response?.data);
+      alert(JSON.stringify(err.response?.data || err.message));
     } finally {
       setLoading(false);
     }
