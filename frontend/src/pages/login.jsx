@@ -10,6 +10,8 @@ export default function Login() {
     password: "",
   });
 
+  const [loading, setLoading] = useState(false);
+
   const login = async () => {
     try {
       setLoading(true);
