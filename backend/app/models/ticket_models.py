@@ -1,4 +1,5 @@
 from sqlalchemy import Column, Integer, String
+
 from app.database.db import Base
 
 class Ticket(Base):
@@ -14,7 +15,5 @@ class Ticket(Base):
     resolution = Column(String)
     assigned_to = Column(String)
 
-    status = Column(
-        String,
-        default="Open"
-    )
+    status = Column(String, default="Open")
+    

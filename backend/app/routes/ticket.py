@@ -66,3 +66,27 @@ def delete_ticket(ticket_id: int, db: Session = Depends(get_db)):
     db.commit()
 
     return {"message": "Ticket deleted"}
+
+@router.get("/dashboard/stats")
+def dashboard_stats(db: Session = Depends(get_db)):
+
+    total = db.query(Ticket).count()
+
+    open_tickets = db.query(Ticket).filter(
+        Ticket.status == "Open"
+    ).count()
+
+    critical = db.query(Ticket).filter(
+        Ticket.priority == "Critical"
+    ).count()
+
+    resolved = db.query(Ticket).filter(
+        Ticket.status == "Resolved"
+    ).count()
+
+    return {
+        "total": total,
+        "open": open_tickets,
+        "critical": critical,
+        "resolved": resolved
+    }

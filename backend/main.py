@@ -26,6 +26,7 @@ from app.models.schemas import TicketUpdate
 
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi import HTTPException
+import requests
 
 app = FastAPI()
 app.add_middleware(
@@ -249,6 +250,23 @@ def create_ticket(
         db.commit()
         db.refresh(ticket)
 
+        # Trigger n8n workflow
+        try:
+            requests.post(
+                "http://localhost:5678/webhook-test/6ccc8049-b5f2-487a-b296-e2e793442857",
+                json={
+                    "id": ticket.id,
+                    "summary": ticket.summary,
+                    "priority": ticket.priority,
+                    "category": ticket.category,
+                    "department": ticket.department,
+                    "status": ticket.status,
+                },
+                timeout=5
+            )
+        except Exception as webhook_error:
+            print("n8n webhook failed:", webhook_error)
+
         return ticket
 
     except Exception as e:
@@ -258,7 +276,7 @@ def create_ticket(
         return {
             "error": str(e)
         }
-
+    
 @app.get("/tickets")
 def get_tickets(
     db: Session = Depends(get_db)
@@ -350,3 +368,66 @@ def close_ticket(
         "message": "Ticket closed successfully",
         "ticket_id": ticket.id
     }
+
+@app.get("/dashboard/stats")
+def dashboard_stats(db: Session = Depends(get_db)):
+    total = db.query(Ticket).count()
+
+    open_tickets = db.query(Ticket).filter(
+        Ticket.status == "Open"
+    ).count()
+
+    critical = db.query(Ticket).filter(
+        Ticket.priority == "Critical"
+    ).count()
+
+    resolved = db.query(Ticket).filter(
+        Ticket.status == "Resolved"
+    ).count()
+
+    return {
+        "total": total,
+        "open": open_tickets,
+        "critical": critical,
+        "resolved": resolved
+    }
+
+from sqlalchemy import func
+
+@app.get("/dashboard/priority")
+def priority_stats(db: Session = Depends(get_db)):
+    result = (
+        db.query(
+            Ticket.priority,
+            func.count(Ticket.id).label("count")
+        )
+        .group_by(Ticket.priority)
+        .all()
+    )
+
+    return [
+        {
+            "priority": row.priority,
+            "count": row.count
+        }
+        for row in result
+    ]
+
+@app.get("/dashboard/department")
+def department_stats(db: Session = Depends(get_db)):
+    result = (
+        db.query(
+            Ticket.department,
+            func.count(Ticket.id).label("count")
+        )
+        .group_by(Ticket.department)
+        .all()
+    )
+
+    return [
+        {
+            "department": row.department,
+            "count": row.count
+        }
+        for row in result
+    ]
